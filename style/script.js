@@ -1,18 +1,28 @@
 const audio = document.getElementById("sound");
 
-  const tryPlay = () => {
-    audio.play().catch(() => {
-      const resumeAudio = () => {
-        audio.play();
-        document.removeEventListener("click", resumeAudio);
-        document.removeEventListener("touchstart", resumeAudio);
-      };
-      document.addEventListener("click", resumeAudio);
-      document.addEventListener("touchstart", resumeAudio);
-    });
-  };
+function tryPlayAudio() {
+  audio.play().catch((err) => {
+    const unlockAudio = () => {
+      audio.play().then(() => {
+        document.removeEventListener("click", unlockAudio);
+        document.removeEventListener("touchstart", unlockAudio);
+      }).catch((e) => {
+        console.warn("Không thể phát âm thanh:", e);
+      });
+    };
 
-  window.addEventListener("load", tryPlay);
+    document.addEventListener("click", unlockAudio);
+    document.addEventListener("touchstart", unlockAudio);
+  });
+}
+
+window.addEventListener("load", () => {
+  if (audio.readyState >= 2) {
+    tryPlayAudio();
+  } else {
+    audio.addEventListener("canplaythrough", tryPlayAudio);
+  }
+});
 
 function rain() {
     const cloud = document.querySelector('.cloud');
